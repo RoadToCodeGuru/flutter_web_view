@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_webview/utility/preloader.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
@@ -51,18 +53,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  double _progress = 0;
   @override
   void initState() {
     super.initState();
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+    OneSignal.shared.setAppId("d3af1024-8485-445b-be84-5658f5d25184");
     // Enable virtual display.
     if (Platform.isAndroid) WebView.platform = AndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      javascriptMode: JavascriptMode.unrestricted,
-      initialUrl: 'https://medicarehb.com.mm',
+    return Stack(
+      children: [
+        WebView(
+          javascriptMode: JavascriptMode.unrestricted,
+          initialUrl: 'https://medicarehb.com.mm',
+          onProgress: (int progress) {
+            setState(() {
+              _progress = progress / 100;
+            });
+          },
+        ),
+        _progress < 1 ? Preloader() : SizedBox()
+      ],
     );
   }
 }
